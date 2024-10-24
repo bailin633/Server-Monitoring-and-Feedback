@@ -73,7 +73,6 @@ def check_and_create_folder(path):
 
 
 # 检测文件是否存在，若不存在，创建
-
 def check_and_create_file(file_path):
     if not os.path.exists(file_path):
         with open(file_path, 'w') as f:  # 创建一个空文件
@@ -100,11 +99,6 @@ def get_user_thresholds():
 
     return cpu_threshold, memory_threshold
 
-
-# 获取用户输入的阈值
-cpu_threshold, memory_threshold = get_user_thresholds()
-print(f"用户设定的CPU阈值: {cpu_threshold}%")
-print(f"用户设定的内存阈值: {memory_threshold}%")
 
 # 配置文件路径
 config_file_path = 'C:/Server_Data/Data.json'
@@ -164,7 +158,7 @@ print(f"最终使用的邮箱是: {email}")
 
 def user_time_sleep():
     while True:
-        minutes = input("请输入检测时间间隔(分钟)")
+        minutes = input("请输入检测时间间隔(分钟): ")
         # 检测输入是否是数字或者小数点
         if minutes.replace('.', '', 1).isdigit() or '.' in minutes:
             try:
@@ -183,12 +177,10 @@ last_user_time = user_time_sleep()
 def send_alert_email(body, subject, to_email):
     smtp_server = "smtp.qq.com"
     smtp_port = 465
-    from_email = "2412433138@qq.com"  # 发送方邮箱
-    password = "hsmxwitefteqdica"  # 授权码
 
     # 创建邮件
     msg = MIMEMultipart()
-    msg['From'] = from_email
+    msg['From'] = email
     msg['To'] = to_email
     msg['Subject'] = subject
 
@@ -198,8 +190,8 @@ def send_alert_email(body, subject, to_email):
     try:
         # 使用 SMTP_SSL 连接服务器
         server = smtplib.SMTP_SSL(smtp_server, smtp_port)
-        server.login(from_email, password)
-        server.sendmail(from_email, to_email, msg.as_string())
+        server.login(email, password)
+        server.sendmail(email, to_email, msg.as_string())
         server.quit()
         print("Alert email sent successfully!")
     except Exception as e:
@@ -209,6 +201,7 @@ def send_alert_email(body, subject, to_email):
 # 主程序逻辑，将系统监控和邮件系统结合
 def monitor_system():
     to_email = "s2412433138@gmail.com"  # 收件人邮箱
+    cpu_threshold, memory_threshold = get_user_thresholds()  # 在监控系统中获取阈值
     while True:
         cpu_usage = get_cpu_usage()
         memory_usage = get_memory_usage()
@@ -262,36 +255,36 @@ def monitor_system():
             </head>
             <body>
                 <div class="alert">
-                    <h2 style="margin-bottom: 0;">⚠️ CPU占用率过高警告</h2>
-                    <p style="font-size: 16px;">系统当前检测到CPU占用率已达到<strong>{cpu_usage}%</strong></p>
+                    <h2>警报：CPU使用率超过阈值！</h2>
+                    <p>当前CPU使用率: <strong>{cpu_usage}%</strong></p>
+                    <p>设定的阈值: <strong>{cpu_threshold}%</strong></p>
                 </div>
                 <table>
                     <tr>
-                        <th>信息</th>
-                        <th>值</th>
+                        <th>监控项</th>
+                        <th>使用率</th>
                     </tr>
                     <tr>
-                        <td>当前CPU占用率</td>
+                        <td>CPU使用率</td>
                         <td>{cpu_usage}%</td>
                     </tr>
                     <tr>
-                        <td>当前系统</td>
-                        <td>{os_name}</td>
+                        <td>内存使用率</td>
+                        <td>{memory_usage}%</td>
                     </tr>
                     <tr>
-                        <td>系统版本</td>
+                        <td>操作系统</td>
+                        <td>{os_name}</td>
+                    </tr>
+                     <tr>
+                        <td>版本</td>
                         <td>{os_version}</td>
                     </tr>
                     <tr>
-                        <td>版本号</td>
+                        <td>详细信息</td>
                         <td>{version_info}</td>
                     </tr>
-                    <tr>
-                        <td>设触发阈值</td>
-                        <td>{cpu_threshold}%</td>
-                    </tr>
                 </table>
-                <p style="font-size: 12px; color: grey; margin-top: 20px;">由系统监控工具生成</p>
             </body>
             </html>
             """
@@ -309,7 +302,7 @@ def monitor_system():
                         color: #ffffff;
                     }}
                     .alert {{
-                        background: linear-gradient(135deg, #4b79a1, #283e51);
+                        background: linear-gradient(135deg, #ff4b2b, #ff416c);
                         padding: 20px;
                         border-radius: 10px;
                         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -343,44 +336,43 @@ def monitor_system():
             </head>
             <body>
                 <div class="alert">
-                    <h2 style="margin-bottom: 0;">⚠️ 内存占用率过高警告</h2>
-                    <p style="font-size: 16px;">系统当前检测到内存占用率已达到<strong>{memory_usage}%</strong></p>
+                    <h2>警报：内存使用率超过阈值！</h2>
+                    <p>当前内存使用率: <strong>{memory_usage}%</strong></p>
+                    <p>设定的阈值: <strong>{memory_threshold}%</strong></p>
                 </div>
                 <table>
                     <tr>
-                        <th>信息</th>
-                        <th>值</th>
+                        <th>监控项</th>
+                        <th>使用率</th>
                     </tr>
                     <tr>
-                        <td>当前内存占用率</td>
+                        <td>CPU使用率</td>
+                        <td>{cpu_usage}%</td>
+                    </tr>
+                    <tr>
+                        <td>内存使用率</td>
                         <td>{memory_usage}%</td>
                     </tr>
                     <tr>
-                        <td>当前系统</td>
+                        <td>操作系统</td>
                         <td>{os_name}</td>
                     </tr>
-                    <tr>
-                        <td>系统版本</td>
+                     <tr>
+                        <td>版本</td>
                         <td>{os_version}</td>
                     </tr>
                     <tr>
-                        <td>版本号</td>
+                        <td>详细信息</td>
                         <td>{version_info}</td>
                     </tr>
-                    <tr>
-                        <td>触发阈值</td>
-                        <td>{memory_threshold}%</td>
-                    </tr>
                 </table>
-                <p style="font-size: 12px; color: grey; margin-top: 20px;">由系统监控工具生成</p>
             </body>
             </html>
             """
             send_alert_email(body, subject, to_email)
 
-        time.sleep(last_user_time)
+        time.sleep(last_user_time)  # 等待用户指定的时间间隔
 
 
 if __name__ == "__main__":
     monitor_system()
-    read_config_main()
