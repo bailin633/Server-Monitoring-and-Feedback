@@ -105,10 +105,12 @@ config_file_path = 'C:/Server_Data/Data.json'
 
 
 # 保存邮箱和授权码
-def save_config(email, password):
+def save_config(email, password, target_email):
     config = {
         "email": email,
-        "password": password
+        "password": password,
+        "target_email": target_email,  # 接收方邮箱
+
     }
     with open(config_file_path, 'w') as f:
         json.dump(config, f)
@@ -120,17 +122,18 @@ def load_config():
     if os.path.exists(config_file_path):
         with open(config_file_path, 'r') as f:
             config = json.load(f)
-        return config["email"], config["password"]
+        return config["email"], config["password"], config["target_email"]
     else:
-        return None, None
+        return None, None, None
 
 
-# 获取用户输入
+# 获取用户输入(邮箱和授权码)
 def get_user_input():
     email = input("请输入您的邮箱: ")
     password = input("请输入您的授权码: ")
-    save_config(email, password)
-    return email, password
+    target_email = input("请输入接收方邮箱")
+    save_config(email, password, target_email)
+    return email, password, target_email
 
 
 # 主逻辑：读取配置或获取用户输入
@@ -138,22 +141,18 @@ def read_config_main():
     if os.path.exists(config_file_path):
         choice = input("检测到配置文件，是否拉取并使用 (y/n): ")
         if choice.lower() == 'y':
-            email, password = load_config()
-            print(f"已加载配置: 邮箱: {email}")
+            email, password, target_email = load_config()  # 读取接收方邮箱
+            print(f"已加载配置: 邮箱: {email}, 接收方邮箱: {target_email}")
         else:
-            email, password = get_user_input()
+            email, password, target_email = get_user_input()  # 获取所有输入
     else:
-        email, password = get_user_input()
+        email, password, target_email = get_user_input()  # 获取所有输入
 
-    # 返回邮箱和密码，用于后续使用
-    return email, password
+    return email, password, target_email  # 返回所有值
 
 
 # 调用主函数
-email, password = read_config_main()
-
-# 继续使用邮箱和密码
-print(f"最终使用的邮箱是: {email}")
+email, password, target_email = read_config_main()
 
 
 def user_time_sleep():
@@ -172,6 +171,24 @@ def user_time_sleep():
 
 last_user_time = user_time_sleep()
 
+
+def clear_console():
+    if os.name == 'nt':
+        os.system('cls')  # Windows 系统
+    else:
+        os.system('clear')  # Linux/Mac 系统
+
+
+def get_user_clear_time():
+    user_clear_time = int(input("请输入间隔多久清空控制台"))
+    return user_clear_time
+
+
+############################################################################################
+############################################################
+############################################################################################
+######################################################################
+########################################################
 
 # 邮件发送系统
 def send_alert_email(body, subject, to_email):
@@ -200,9 +217,21 @@ def send_alert_email(body, subject, to_email):
 
 # 主程序逻辑，将系统监控和邮件系统结合
 def monitor_system():
-    to_email = "s2412433138@gmail.com"  # 收件人邮箱
+    to_email = target_email  # 收件人邮箱
     cpu_threshold, memory_threshold = get_user_thresholds()  # 在监控系统中获取阈值
+
+    clear_interval = get_user_clear_time()  # 多少时间清空一次
+    last_clear_time = time.time()  # 记录上次清除的时间
     while True:
+        current_time = time.time()
+
+        # 每隔一段时间清空控制台
+        if current_time - last_clear_time >= clear_interval:
+            clear_console()
+            last_clear_time = current_time
+
+        # 获取系统资源使用率
+
         cpu_usage = get_cpu_usage()
         memory_usage = get_memory_usage()
 
