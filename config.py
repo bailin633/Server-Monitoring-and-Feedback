@@ -39,14 +39,23 @@ def get_user_input():
 
 # 主逻辑：读取配置或获取用户输入
 def read_config_main():
+    # 先检查配置文件是否存在
     if os.path.exists(config_file_path):
+        # 文件存在，询问用户是否使用已保存的配置
         choice = input("检测到配置文件，是否拉取并使用 (y/n): ")
         if choice.lower() == 'y':
             email, password, target_email = load_config()  # 读取接收方邮箱
             print(f"已加载配置: 邮箱: {email}, 接收方邮箱: {target_email}")
-        else:
+        elif choice.lower() == 'n':
             email, password, target_email = get_user_input()  # 获取所有输入
+        else:
+            print("程序已中断，按回车继续...")
+            input()  # 等待用户按回车
+            return None, None, None  # 返回空值，表示程序中断
     else:
+        # 文件不存在，直接获取用户输入
+        print("未检测到配置文件，请输入邮箱和授权码。")
         email, password, target_email = get_user_input()  # 获取所有输入
 
     return email, password, target_email  # 返回所有值
+

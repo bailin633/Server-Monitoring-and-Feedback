@@ -1,6 +1,7 @@
 import os
 import shutil
-from termcolor import  colored
+from termcolor import colored
+
 
 # 检测路径是否存在，如果不存在,创建，如果存在，不创建
 def check_and_create_folder(path):
@@ -25,11 +26,11 @@ def check_and_copy_or_none():
 
     # 检查 C 盘根目录下是否存在 index.html
     if os.path.isfile(c_index_path):
-        print(colored("200-OK", 'green'))
+        print(colored("200-OK\n", 'green'))
     else:
         # 复制文件
         if os.path.isfile(project_index_path):  # 确保源文件存在
             shutil.copy(project_index_path, c_index_path)
-            print(colored("200-OK", 'green'))
+            print(colored("200-OK\n", 'green'))
         else:
             print(f"未找到项目目录下的 index.html 文件: {project_index_path}")
