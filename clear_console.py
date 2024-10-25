@@ -9,5 +9,5 @@ def clear_console():
 
 
 def get_user_clear_time():
-    user_clear_time = int(input("请输入间隔多久清空控制台"))
+    user_clear_time = int(input("请输入间隔多久清空控制台(秒):"))
     return user_clear_time

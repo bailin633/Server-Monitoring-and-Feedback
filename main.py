@@ -13,15 +13,16 @@ from index import open_html
 check_and_copy_or_none()
 
 print(colored("Ctrl+m查看使用文档", 'red'))
+print(colored("!!!---第一次运行请不要选择加载配置文件---!!!\n", 'red'))
 keyboard.add_hotkey('ctrl+m', lambda: (open_html()))
 
 # 获取系统版本号
 os_name, os_version = get_os_info()
-print(f"Operating System: {os_name} {os_version}")
+print(colored(f"Operating System: {os_name} {os_version}", 'green'))
 
 # 获取Windows的版本信息
 version_info = get_windows_version_info()
-print(f"Windows Version Info: {version_info}")
+print(colored(f"Windows Version Info: {version_info}\n",'green'))
 # 调用检测文件夹和文件的函数
 folder_path = 'C:/Server_Data'
 file_path = os.path.join(folder_path, 'Data.json')
