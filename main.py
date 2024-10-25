@@ -1,11 +1,19 @@
 import time
 import os
+import keyboard
+from termcolor import colored
 from function import user_time_sleep
 from windows_info import get_os_info, get_windows_version_info, get_cpu_usage, get_memory_usage
 from clear_console import clear_console, get_user_clear_time
-from check_file import check_and_create_file, check_and_create_folder
+from check_file import check_and_create_file, check_and_create_folder, check_and_copy_or_none
 from config import read_config_main
 from send_email import send_alert_email
+from index import open_html
+
+check_and_copy_or_none()
+
+print(colored("Ctrl+m查看使用文档", 'red'))
+keyboard.add_hotkey('ctrl+m', lambda: (open_html()))
 
 # 获取系统版本号
 os_name, os_version = get_os_info()
