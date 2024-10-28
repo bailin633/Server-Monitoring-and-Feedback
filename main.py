@@ -2,15 +2,16 @@ import time
 import os
 import keyboard
 from termcolor import colored
-from function import user_time_sleep
-from windows_info import get_os_info, get_windows_version_info, get_cpu_usage, get_memory_usage
-from clear_console import clear_console, get_user_clear_time
+# from function import user_time_sleep
+from windows_info import get_os_info, get_windows_version_info, get_cpu_usage, get_memory_usage, get_cpu_core_count
+from clear_console import clear_console
 from check_file import check_and_create_file, check_and_create_folder, check_and_copy_or_none
 from config import read_config_main
 from send_email import send_alert_email
 from index import open_html
 
 check_and_copy_or_none()
+cpu_cores, cpu_cores_more = get_cpu_core_count()
 
 print(colored("Ctrl+m查看使用文档", 'red'))
 print(colored("!!!---第一次运行请不要选择加载配置文件---!!!\n", 'red'))
@@ -22,7 +23,7 @@ print(colored(f"Operating System: {os_name} {os_version}", 'green'))
 
 # 获取Windows的版本信息
 version_info = get_windows_version_info()
-print(colored(f"Windows Version Info: {version_info}\n",'green'))
+print(colored(f"Windows Version Info: {version_info}\n", 'green'))
 # 调用检测文件夹和文件的函数
 folder_path = 'C:/Server_Data'
 file_path = os.path.join(folder_path, 'Data.json')
@@ -43,9 +44,17 @@ def get_user_thresholds():
 
 
 # 调用主函数
-email, password, target_email = read_config_main()
+email, password, target_email, last_user_time, user_clear_time = read_config_main()
+# 转换检测时间为浮点值
+last_user_time = float(last_user_time)
+last_time_sleep = float(last_user_time) * 60
+print(last_time_sleep)
 
-last_user_time = user_time_sleep()
+# 转换清空控制台时间为浮点值
+last_user_clear_time = float(user_clear_time)
+
+
+# last_user_time = user_time_sleep()
 
 
 ############################################################################################
@@ -60,7 +69,7 @@ def monitor_system():
     to_email = target_email  # 收件人邮箱
     cpu_threshold, memory_threshold = get_user_thresholds()  # 在监控系统中获取阈值
 
-    clear_interval = get_user_clear_time()  # 多少时间清空一次
+    clear_interval = last_user_clear_time  # 多少时间清空一次
     last_clear_time = time.time()  # 记录上次清除的时间
     while True:
         current_time = time.time()
@@ -108,6 +117,7 @@ def monitor_system():
                         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
                         border-radius: 10px;
                         overflow: hidden;
+                    
                     }}
                     th, td {{
                         padding: 12px;
@@ -116,10 +126,12 @@ def monitor_system():
                     }}
                     th {{
                         background-color: rgba(255, 255, 255, 0.1);
+            
                     }}
-                    tr:hover {{
+                   
                         background-color: rgba(255, 255, 255, 0.2);
                     }}
+                   
                 </style>
             </head>
             <body>
@@ -132,26 +144,32 @@ def monitor_system():
                     <tr>
                         <th>监控项</th>
                         <th>使用率</th>
+                        <th>更多信息</th>
                     </tr>
                     <tr>
                         <td>CPU使用率</td>
                         <td>{cpu_usage}%</td>
+                        <td>核心数量: {cpu_cores}/{cpu_cores_more}</td>
                     </tr>
                     <tr>
                         <td>内存使用率</td>
                         <td>{memory_usage}%</td>
+                        <td></td>
                     </tr>
                     <tr>
                         <td>操作系统</td>
                         <td>{os_name}</td>
+                        <td></td>
                     </tr>
                      <tr>
                         <td>版本</td>
                         <td>{os_version}</td>
+                        <td></td>
                     </tr>
                     <tr>
                         <td>详细信息</td>
                         <td>{version_info}</td>
+                        <td></td>
                     </tr>
                 </table>
             </body>
@@ -217,22 +235,27 @@ def monitor_system():
                     <tr>
                         <td>CPU使用率</td>
                         <td>{cpu_usage}%</td>
+                        <td>核心数量: {cpu_cores}/{cpu_cores_more}</td>
                     </tr>
                     <tr>
                         <td>内存使用率</td>
                         <td>{memory_usage}%</td>
+                        <td></td>
                     </tr>
                     <tr>
                         <td>操作系统</td>
                         <td>{os_name}</td>
+                        <td></td>
                     </tr>
                      <tr>
                         <td>版本</td>
                         <td>{os_version}</td>
+                        <td></td>
                     </tr>
                     <tr>
                         <td>详细信息</td>
                         <td>{version_info}</td>
+                        <td></td>
                     </tr>
                 </table>
             </body>
@@ -240,7 +263,7 @@ def monitor_system():
             """
             send_alert_email(body, subject, to_email, email, password)
 
-        time.sleep(last_user_time)  # 等待用户指定的时间间隔
+        time.sleep(last_time_sleep)  # 等待用户指定的时间间隔
 
 
 if __name__ == "__main__":
