@@ -49,19 +49,8 @@ def get_memory_usage():
     return memory_info.percent
 
 
-def get_cpu_temperature():
-    # 检查是否能访问传感器温度数据
-    if hasattr(psutil, "sensors_temperatures"):
-        temps = psutil.sensors_temperatures()
-        if not temps:
-            return "无法获取CPU温度数据"
-
-        # 一般情况下 CPU 温度的标签是 'coretemp' 或 'cpu-thermal'
-        for name, entries in temps.items():
-            for entry in entries:
-                if "cpu" in entry.label.lower():
-                    return entry.current  # 返回当前温度
-        return "未找到 CPU 温度数据"
-    else:
-        return "系统不支持获取温度数据"
-
+# 获取CPU核心(包括超线程)
+def get_cpu_core_count():
+    cpu_cores = psutil.cpu_count(logical=False)  # 获取核心(物理)
+    cpu_cores_more = psutil.cpu_count(logical=True)  # 获取全部核心(物理+超线程)
+    return cpu_cores, cpu_cores_more
