@@ -36,6 +36,11 @@ def get_user_thresholds():
     try:
         cpu_threshold = int(input("请输入CPU占用触发率阈值 (例如: 90): "))
         memory_threshold = int(input("请输入内存占用出发率阈值 (例如: 80): "))
+
+        # 判断用户输入值是否大于100
+        if cpu_threshold > 100 or memory_threshold > 100:
+            print("输入值超出了100，请重新输入。")
+            return get_user_thresholds()  # 重新获取用户输入
     except ValueError:
         print("输入无效，请输入整数值。")
         return get_user_thresholds()  # 重新获取用户输入
@@ -231,6 +236,7 @@ def monitor_system():
                     <tr>
                         <th>监控项</th>
                         <th>使用率</th>
+                        <th>更多信息</th>
                     </tr>
                     <tr>
                         <td>CPU使用率</td>
@@ -268,3 +274,4 @@ def monitor_system():
 
 if __name__ == "__main__":
     monitor_system()
+
