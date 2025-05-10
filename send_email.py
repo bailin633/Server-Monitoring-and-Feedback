@@ -21,39 +21,33 @@ last_sent_time = 0  # 全局变量,记录上一次邮件发送的时间
 
 def send_alert_email(body, subject, to_email, email, password):
     global last_sent_time
-    # 检测是否在5分钟内
     current_time = time.time()
-    if current_time - last_sent_time < 30:  # 300/60 =5/min
-        print("五分钟内只能发送一封邮件")
-        return
-    # 获取邮箱后缀，确定服务器
+
+    # 发送频率限制 (30秒)
+    if current_time - last_sent_time < 30:
+        return {"success": False, "error": "发送频率限制：30秒内只能发送一封邮件。"}
+
     domain = email.split("@")[-1]
     server_config = EMAIL_SERVERS.get(domain)
 
     if not server_config:
-        print(f"没有找到对应SMTP服务器地址: {domain}")
-        return
+        return {"success": False, "error": f"未找到域 '{domain}' 对应的SMTP服务器配置。"}
 
     smtp_server = server_config["smtp_server"]
     smtp_port = server_config["smtp_port"]
     
-    # 创建邮件
     msg = MIMEMultipart()
     msg['From'] = email
     msg['To'] = to_email
     msg['Subject'] = subject
-
-    # 添加邮件正文
     msg.attach(MIMEText(body, 'html'))
 
     try:
-        # 使用 SMTP_SSL 连接服务器
         server = smtplib.SMTP_SSL(smtp_server, smtp_port)
         server.login(email, password)
         server.sendmail(email, to_email, msg.as_string())
         server.quit()
-        # 更新上次发送的时间
         last_sent_time = current_time
-        print("Alert email sent successfully!")
+        return {"success": True, "message": "邮件已成功发送！"}
     except Exception as e:
-        print(f"Failed to send email: {e}")
+        return {"success": False, "error": f"邮件发送失败: {str(e)}"}

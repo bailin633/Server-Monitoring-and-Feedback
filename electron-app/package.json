@@ -1,0 +1,23 @@
+{
+  "name": "system-monitor-electron",
+  "version": "1.0.0",
+  "description": "System resource monitor with Electron UI",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "electron",
+    "system",
+    "monitor"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^29.0.0"
+  },
+  "dependencies": {
+    "python-shell": "^5.0.0"
+  }
+}

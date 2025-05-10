@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSP to allow local resources and inline styles/scripts if absolutely necessary, but prefer external files -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+    <title>系统资源监控</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="app-header">
+            <h1>系统资源监控面板</h1>
+            <button id="theme-toggle-btn" title="切换主题">☀️</button>
+        </header>
+
+        <div class="grid-container">
+            <!-- 实时监控数据 -->
+            <section id="realtime-data" class="card">
+                <h2>实时监控数据</h2>
+                <div class="info-grid">
+                    <p>CPU 使用率: <strong id="cpu-usage">N/A</strong></p>
+                    <p>内存 使用率: <strong id="memory-usage">N/A</strong></p>
+                    <p>操作系统: <strong id="os-info">N/A</strong></p>
+                    <p>Windows 版本: <strong id="windows-version">N/A</strong></p>
+                    <p>CPU 核心数: <strong id="cpu-cores">N/A</strong></p>
+                    <p>总物理内存: <strong id="total-memory">N/A</strong> GB</p>
+                    <p>虚拟内存: <strong id="virtual-memory">N/A</strong></p>
+                    <p>运行进程数: <strong id="running-processes">N/A</strong></p>
+                </div>
+            </section>
+
+            <!-- 监控参数设置 -->
+            <section id="monitor-settings" class="card">
+                <h2>监控参数设置</h2>
+                <div class="form-group">
+                    <label for="cpu-threshold">CPU 阈值 (%):</label>
+                    <input type="number" id="cpu-threshold" value="90" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <label for="memory-threshold">内存 阈值 (%):</label>
+                    <input type="number" id="memory-threshold" value="80" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <label for="check-interval">检测间隔 (分钟):</label>
+                    <input type="number" id="check-interval" value="1" min="0.1" step="0.1">
+                </div>
+            </section>
+
+            <!-- 邮件警报配置 -->
+            <section id="email-config" class="card">
+                <h2>邮件警报配置</h2>
+                <div class="form-group">
+                    <label for="sender-email">发件人邮箱:</label>
+                    <input type="email" id="sender-email" placeholder="your_email@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="sender-password">发件人密码/授权码:</label>
+                    <input type="password" id="sender-password">
+                </div>
+                <div class="form-group">
+                    <label for="receiver-email">收件人邮箱:</label>
+                    <input type="email" id="receiver-email" placeholder="recipient_email@example.com">
+                </div>
+                <button id="save-config-btn">保存邮件配置</button>
+            </section>
+
+            <!-- 控制区 -->
+            <section id="controls" class="card">
+                <h2>控制</h2>
+                <button id="start-monitor-btn">▶ 启动监控</button>
+                <button id="stop-monitor-btn" disabled>■ 停止监控</button>
+            </section>
+        </div>
+
+        <!-- 状态与日志区 -->
+        <section id="log-area" class="card">
+            <h2>状态与日志</h2>
+            <div id="log-output" class="log-box">
+                <p>应用程序准备就绪...</p>
+            </div>
+        </section>
+
+        <footer class="status-bar">
+            <p id="status-message">就绪</p>
+        </footer>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>

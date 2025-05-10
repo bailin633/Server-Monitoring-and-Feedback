@@ -16,11 +16,11 @@ def run_initial_setup():
     执行程序首次运行或每次启动时可能需要的文件和文件夹检查。
     这个函数可以被 gui.py 在启动时调用。
     """
-    print("执行初始文件/文件夹设置...")
+    # print("执行初始文件/文件夹设置...") # Removed to prevent JSON parsing errors with python-shell
     check_and_copy_or_none()
     folder_path = 'C:/Server_Data'
     file_path = os.path.join(folder_path, 'Data.json')
     check_and_create_folder(folder_path)
     check_and_create_file(file_path)
-    print("初始文件/文件夹设置完成。")
+    # print("初始文件/文件夹设置完成。") # Removed to prevent JSON parsing errors with python-shell
 

@@ -1,0 +1,290 @@
+/* General Body Styles */
+body {
+    font-family: 'Segoe UI', Calibri, Arial, sans-serif;
+    background-color: #262626; /* Dark background - Default Dark Theme */
+    color: #e0e0e0; /* Light text - Default Dark Theme */
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background-color 0.3s, color 0.3s; /* Smooth theme transition */
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+h1 {
+    color: #009688; /* Teal accent for main title - Dark Theme */
+    text-align: left; /* Align with button */
+    margin-bottom: 0; /* Adjusted due to header flex */
+    font-size: 2em;
+    flex-grow: 1;
+}
+
+#theme-toggle-btn {
+    background: none;
+    border: 1px solid #00796b;
+    color: #009688;
+    font-size: 1.5em; /* Larger icon */
+    padding: 5px 10px;
+    border-radius: 50%; /* Circular button */
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, transform 0.2s;
+    line-height: 1; /* Ensure icon is centered */
+}
+
+#theme-toggle-btn:hover {
+    background-color: #00796b;
+    color: #ffffff;
+    transform: scale(1.1);
+}
+
+
+h2 {
+    color: #00bfa5; /* Lighter teal for section titles - Dark Theme */
+    border-bottom: 2px solid #00796b;
+    padding-bottom: 8px;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    font-size: 1.4em;
+}
+
+/* Card layout for sections */
+.card {
+    background-color: #333333; /* Slightly lighter dark for cards - Dark Theme */
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+/* Grid layout for data and settings */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); /* Responsive columns */
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.info-grid p {
+    margin: 8px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.info-grid strong {
+    color: #80cbc4; /* Light teal for values - Dark Theme */
+    margin-left: 10px;
+}
+
+/* Form elements */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #b0bec5; /* Lighter gray for labels - Dark Theme */
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    background-color: #424242; /* Darker input background - Dark Theme */
+    border: 1px solid #555555;
+    border-radius: 4px;
+    color: #e0e0e0; /* Light text for input - Dark Theme */
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus {
+    border-color: #009688; /* Teal border on focus - Dark Theme */
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 150, 136, 0.5);
+}
+
+button {
+    background-color: #00796b; /* Darker teal for buttons - Dark Theme */
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    margin-right: 10px;
+}
+
+button:hover {
+    background-color: #00bfa5; /* Lighter teal on hover - Dark Theme */
+}
+
+button:disabled {
+    background-color: #555555; /* Dark Theme Disabled */
+    color: #888888;
+    cursor: not-allowed;
+}
+
+#controls button {
+    min-width: 150px;
+}
+
+
+/* Log Area */
+.log-box {
+    background-color: #212121; /* Very dark for log background - Dark Theme */
+    border: 1px solid #424242;
+    border-radius: 4px;
+    padding: 15px;
+    height: 150px;
+    overflow-y: auto;
+    color: #c5c5c5; /* Light gray for log text - Dark Theme */
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.5;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.log-box p {
+    margin: 0 0 5px 0;
+    word-break: break-all;
+}
+
+/* Status Bar */
+.status-bar {
+    background-color: #1e1e1e; /* Darkest for status bar - Dark Theme */
+    color: #9e9e9e;
+    padding: 8px 15px;
+    text-align: left;
+    font-size: 0.9em;
+    border-top: 1px solid #424242;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background-color 0.3s, color 0.3s, border-top-color 0.3s;
+}
+
+
+/* --- Light Theme --- */
+body.light-theme {
+    background-color: #f4f6f8; /* Light gray background */
+    color: #212529; /* Dark text */
+}
+
+body.light-theme h1 {
+    color: #007bff; /* Blue accent for main title */
+}
+
+body.light-theme #theme-toggle-btn {
+    border: 1px solid #007bff;
+    color: #007bff;
+}
+body.light-theme #theme-toggle-btn:hover {
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+body.light-theme h2 {
+    color: #17a2b8; /* Info blue for section titles */
+    border-bottom: 2px solid #17a2b8;
+}
+
+body.light-theme .card {
+    background-color: #ffffff; /* White cards */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .info-grid strong {
+    color: #007bff; /* Blue for values */
+}
+
+body.light-theme .form-group label {
+    color: #495057; /* Darker gray for labels */
+}
+
+body.light-theme input[type="text"],
+body.light-theme input[type="email"],
+body.light-theme input[type="password"],
+body.light-theme input[type="number"] {
+    background-color: #ffffff; /* White input background */
+    border: 1px solid #ced4da; /* Standard light border */
+    color: #495057; /* Dark text for input */
+}
+
+body.light-theme input[type="text"]:focus,
+body.light-theme input[type="email"]:focus,
+body.light-theme input[type="password"]:focus,
+body.light-theme input[type="number"]:focus {
+    border-color: #80bdff; /* Lighter blue border on focus */
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+body.light-theme button {
+    background-color: #007bff; /* Blue for buttons */
+    color: #ffffff;
+}
+
+body.light-theme button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+body.light-theme button:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    border: 1px solid #ced4da;
+}
+
+body.light-theme .log-box {
+    background-color: #e9ecef; /* Light gray for log background */
+    border: 1px solid #dee2e6;
+    color: #495057; /* Dark gray for log text */
+}
+
+body.light-theme .status-bar {
+    background-color: #e9ecef; /* Light gray for status bar */
+    color: #495057;
+    border-top: 1px solid #dee2e6;
+}
+
+
+/* Responsive adjustments if needed */
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: 1fr; /* Stack on smaller screens */
+    }
+    h1 {
+        font-size: 1.8em;
+    }
+    h2 {
+        font-size: 1.2em;
+    }
+}
