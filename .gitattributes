@@ -4,3 +4,4 @@
 *.html linguist-language=Python
 *.log linguist-detectable=false
 *.md linguist-detectable=false
+electron-app/node_modules/
