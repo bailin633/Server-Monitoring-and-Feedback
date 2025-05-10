@@ -5,60 +5,80 @@ import json
 config_file_path = 'C:/Server_Data/Data.json'
 
 
-# 保存邮箱和授权码
+# 保存邮箱和授权码 (GUI将调用此函数)
+# 在gui.py中，我将其视为 write_config_main，但实际上就是这个 save_config
 def save_config(email, password, target_email, last_user_time, user_clear_time):
     config = {
         "email": email,
         "password": password,
-        "target_email": target_email,  # 接收方邮箱
-        "last_user_time": last_user_time,
-        "user_clear_time": user_clear_time,
+        "target_email": target_email,
+        "last_user_time": str(last_user_time), # 确保保存为字符串
+        "user_clear_time": str(user_clear_time), # 确保保存为字符串
     }
-    with open(config_file_path, 'w') as f:
-        json.dump(config, f)
-    print(f"邮箱配置文件已保存到 '{config_file_path}'")
+    try:
+        with open(config_file_path, 'w') as f:
+            json.dump(config, f, indent=4)
+        # print(f"邮箱配置文件已保存到 '{config_file_path}'") # GUI会处理消息
+        return True
+    except Exception as e:
+        # print(f"保存配置文件失败: {e}") # GUI会处理消息
+        return False
 
 
-# 读取邮箱配置
+# 读取邮箱配置 (供 read_config_main 调用)
 def load_config():
     if os.path.exists(config_file_path):
-        with open(config_file_path, 'r') as f:
-            config = json.load(f)
-        return config["email"], config["password"], config["target_email"], config["last_user_time"], config[
-            "user_clear_time"]
+        try:
+            with open(config_file_path, 'r') as f:
+                config = json.load(f)
+            # 提供默认值以防某些键丢失
+            return (
+                config.get("email"),
+                config.get("password"),
+                config.get("target_email"),
+                config.get("last_user_time", "1.0"), # 默认1分钟
+                config.get("user_clear_time", "3600") # 默认3600秒
+            )
+        except json.JSONDecodeError:
+            # print(f"配置文件 '{config_file_path}' 格式错误.") # GUI会处理
+            return None, None, None, None, None
+        except Exception as e:
+            # print(f"读取配置文件时发生错误: {e}") # GUI会处理
+            return None, None, None, None, None
     else:
         return None, None, None, None, None
 
 
-# 获取用户输入(邮箱和授权码)
-def get_user_input():
-    email = input("请输入您的邮箱: ")
-    password = input("请输入您的授权码: ")
-    target_email = input("请输入接收方邮箱:")
-    last_user_time = input("请输入检测间隔(分钟):")
-    user_clear_time = input("请输入清空控制台时间间隔(秒):")
-    save_config(email, password, target_email, last_user_time, user_clear_time)
-    return email, password, target_email, last_user_time, user_clear_time
+# 获取用户输入(邮箱和授权码) - 此函数将不再被GUI版本直接使用
+# def get_user_input():
+#     email = input("请输入您的邮箱: ")
+#     password = input("请输入您的授权码: ")
+#     target_email = input("请输入接收方邮箱:")
+#     last_user_time = input("请输入检测间隔(分钟):")
+#     user_clear_time = input("请输入清空控制台时间间隔(秒):")
+#     save_config(email, password, target_email, last_user_time, user_clear_time)
+#     return email, password, target_email, last_user_time, user_clear_time
 
 
-# 主逻辑：读取配置或获取用户输入
+# 主逻辑：读取配置 (供GUI调用，无交互)
 def read_config_main():
-    # 先检查配置文件是否存在
-    if os.path.exists(config_file_path):
-        # 文件存在，询问用户是否使用已保存的配置
-        choice = input("检测到配置文件，是否拉取并使用 (y/n): ")
-        if choice.lower() == 'y':
-            email, password, target_email, last_user_time, user_clear_time = load_config()  # 读取接收方邮箱
-            print(f"已加载配置: 邮箱: {email}, 接收方邮箱: {target_email}")
-        elif choice.lower() == 'n':
-            email, password, target_email, last_user_time, user_clear_time = get_user_input()  # 获取所有输入
-        else:
-            print("程序已中断，回车退出重启...")
-            input()  # 等待用户按回车
-            return None, None, None, None, None  # 返回空值，表示程序中断
+    email, password, target_email, last_user_time, user_clear_time = load_config()
+    if email is not None:
+        # print(f"已加载配置: 邮箱: {email}, 接收方邮箱: {target_email}") # GUI会处理消息
+        return email, password, target_email, last_user_time, user_clear_time
     else:
-        # 文件不存在，直接获取用户输入
-        print("未检测到配置文件，请输入邮箱和授权码。")
-        email, password, target_email, last_user_time, user_clear_time = get_user_input()  # 获取所有输入
+        # print("未检测到配置文件或配置文件损坏。GUI将使用默认值或提示输入。") # GUI会处理消息
+        # 返回一组默认值或None，让GUI知道需要初始化
+        return None, None, None, "1.0", "3600" # 默认检测间隔1分钟，清空时间（虽然GUI不用）
 
-    return email, password, target_email, last_user_time, user_clear_time  # 返回所有值
+# 为了兼容旧的 main.py（如果它仍然尝试独立运行并调用 get_user_input）
+# 我们可以保留 get_user_input，但理想情况下它不应该再被调用
+def get_user_input_fallback():
+    print("警告: get_user_input_fallback 被调用。这通常不应在GUI模式下发生。")
+    email = "fallback_email@example.com"
+    password = "fallback_password"
+    target_email = "fallback_recipient@example.com"
+    last_user_time = "5"
+    user_clear_time = "60"
+    # save_config(email, password, target_email, last_user_time, user_clear_time) # 通常不应在fallback中保存
+    return email, password, target_email, last_user_time, user_clear_time

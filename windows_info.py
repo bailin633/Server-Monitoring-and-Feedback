@@ -54,3 +54,22 @@ def get_cpu_core_count():
     cpu_cores = psutil.cpu_count(logical=False)  # 获取核心(物理)
     cpu_cores_more = psutil.cpu_count(logical=True)  # 获取全部核心(物理+超线程)
     return cpu_cores, cpu_cores_more
+
+
+# 获取虚拟内存使用率
+def get_virtual_memory_usage():
+    virtual_mem = psutil.virtual_memory()
+    return virtual_mem.percent
+
+
+# 获取系统进程信息
+def get_running_process_count():
+    # 获取当前正在运行的进程的PID
+    process_ids = psutil.pids()
+    return len(process_ids)
+
+
+# 获取系统总内存
+def get_mem_info():
+    mem_info = psutil.virtual_memory().total  # 获取总内存
+    return mem_info / (1024 ** 3)  # 转换为 GB
