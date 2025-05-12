@@ -41,11 +41,16 @@ h1 {
     border: 1px solid #00796b;
     color: #009688;
     font-size: 1.5em; /* Larger icon */
-    padding: 5px 10px;
+    width: 2.5em; /* Ensure width and height are equal for a circle */
+    height: 2.5em; /* Ensure width and height are equal for a circle */
+    padding: 0; /* Remove uneven padding, rely on flex for centering */
     border-radius: 50%; /* Circular button */
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s, transform 0.2s;
     line-height: 1; /* Ensure icon is centered */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #theme-toggle-btn:hover {
@@ -84,13 +89,19 @@ h2 {
 
 .info-grid p {
     margin: 8px 0;
-    display: flex;
-    justify-content: space-between;
+    display: grid; /* Use grid for better alignment */
+    /* Give label a min-width, value takes the rest. Adjust min-width as needed */
+    grid-template-columns: minmax(150px, auto) 1fr;
+    gap: 10px; /* Space between label and value */
+    align-items: baseline; /* Align text based on baseline */
 }
 
+/* Target the strong tag specifically for text-align */
 .info-grid strong {
     color: #80cbc4; /* Light teal for values - Dark Theme */
-    margin-left: 10px;
+    /* margin-left: 10px; */ /* Remove margin, rely on grid gap */
+    text-align: right; /* Align the value to the right */
+    justify-self: end; /* Align the grid item itself to the end */
 }
 
 /* Form elements */
@@ -109,14 +120,17 @@ input[type="text"],
 input[type="email"],
 input[type="password"],
 input[type="number"] {
-    width: calc(100% - 22px);
+    /* width: calc(100% - 22px); */ /* Remove this potentially problematic calculation */
+    width: 100%; /* Let it take full width within its container */
     padding: 10px;
+    /* Ensure padding-right is handled correctly in the password group specifically */
+    box-sizing: border-box; /* Ensure padding is included in width */
     background-color: #424242; /* Darker input background - Dark Theme */
     border: 1px solid #555555;
     border-radius: 4px;
     color: #e0e0e0; /* Light text for input - Dark Theme */
     font-size: 1em;
-    box-sizing: border-box;
+    /* box-sizing: border-box; */ /* Already defined above */
     transition: background-color 0.3s, border-color 0.3s, color 0.3s;
 }
 
@@ -287,4 +301,140 @@ body.light-theme .status-bar {
     h2 {
         font-size: 1.2em;
     }
+}
+/* 密码可见性切换按钮样式 */
+.password-group {
+    position: relative; /* 允许绝对定位子元素 */
+    /* display: flex; */ /* Remove flex, let input be block */
+    /* align-items: center; */
+}
+
+/* Ensure label is block or inline-block */
+.password-group label {
+    display: block; /* Or inline-block if preferred */
+    margin-bottom: 5px; /* Keep existing margin */
+}
+
+
+.password-group input[type="password"],
+.password-group input[type="text"] { /* 同时应用于文本和密码类型 */
+    /* flex-grow: 1; */ /* Not needed without flex */
+    width: 100%; /* Ensure it takes full width */
+    padding-right: 3em !important; /* 为按钮留出空间, keep important for specificity */
+    box-sizing: border-box; /* Crucial for width calculation with padding */
+}
+
+.visibility-toggle {
+    position: absolute; /* 绝对定位在输入框内 */
+    right: 0.5em; /* 距离右边框一点距离 */
+    top: 50%; /* 垂直居中 */
+    transform: translateY(-50%); /* 精确垂直居中 */
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em; /* 图标大小 */
+    padding: 0.2em;
+    line-height: 1; /* 避免额外行高影响定位 */
+    color: var(--text-color); /* 使用主题颜色 */
+}
+
+.visibility-toggle:hover {
+    opacity: 0.7;
+}
+/* 日志区域头部和控制 */
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px; /* Space between header and log box */
+}
+
+.log-header h2 {
+    margin: 0; /* Remove default margin from h2 */
+    border-bottom: none; /* Remove border if not needed here */
+    padding-bottom: 0;
+}
+
+.log-controls {
+    display: flex;
+    align-items: center;
+    position: relative; /* For positioning the dropdown */
+}
+
+.log-controls button {
+    margin-left: 10px; /* Space between buttons */
+}
+
+/* 自动清除设置区域 */
+.auto-clear-details {
+    position: absolute;
+    top: 100%; /* Position below the buttons */
+    right: 0;
+    background-color: var(--card-bg-color, #333333); /* Use theme variable or fallback */
+    border: 1px solid var(--border-color, #555555);
+    border-radius: 4px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 10; /* Ensure it's above other elements */
+    min-width: 250px; /* Minimum width */
+    margin-top: 5px; /* Small gap */
+    transition: opacity 0.3s ease, visibility 0.3s ease; /* Smooth transition */
+}
+
+.auto-clear-details.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none; /* Prevent interaction when hidden */
+}
+
+.auto-clear-details label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+
+.auto-clear-details input[type="number"] {
+    width: calc(100% - 22px); /* Adjust width */
+    margin-bottom: 10px;
+}
+
+.auto-clear-details button {
+    width: 100%;
+    margin-top: 5px;
+    margin-left: 0; /* Override default margin */
+}
+
+.auto-clear-details .note {
+    font-size: 0.8em;
+    color: var(--text-muted-color, #9e9e9e);
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* 切换箭头按钮 */
+.toggle-arrow {
+    padding: 5px 8px; /* Smaller padding */
+    font-size: 0.8em; /* Smaller font */
+    min-width: auto; /* Allow smaller width */
+    line-height: 1;
+}
+
+/* Add theme variables for card background and border if not already present */
+:root {
+    --card-bg-color: #333333;
+    --border-color: #555555;
+    --text-muted-color: #9e9e9e;
+    --text-color: #e0e0e0; /* Ensure text color is defined */
+}
+
+body.light-theme {
+    --card-bg-color: #ffffff;
+    --border-color: #dee2e6;
+    --text-muted-color: #6c757d;
+    --text-color: #212529; /* Ensure text color is defined for light theme */
+}
+
+/* Ensure password toggle color uses theme variable */
+.visibility-toggle {
+    color: var(--text-color);
 }

@@ -51,18 +51,21 @@ def dispatch(action, args_dict=None):
         elif action == "get_mem_info": # Physical memory in GB
             return get_mem_info()
         elif action == "read_config":
-            # read_config_main returns: email, password, target_email, last_user_time, user_clear_time
-            email, password, target_email, last_user_time, user_clear_time = read_config_main()
+            # read_config_main returns: email, password, target_email, last_user_time, user_clear_time, cpu_threshold, memory_threshold, email_cooldown
+            email, password, target_email, last_user_time, user_clear_time, cpu_threshold, memory_threshold, email_cooldown = read_config_main()
             return {
                 "sender_email": email,
                 "sender_password": password, # Be cautious about sending passwords
                 "receiver_email": target_email,
                 "check_interval_minutes": last_user_time,
-                "clear_console_seconds": user_clear_time
+                "clear_console_seconds": user_clear_time,
+                "cpu_threshold": cpu_threshold,
+                "memory_threshold": memory_threshold,
+                "email_cooldown": email_cooldown # 新增
             }
         elif action == "save_config":
-            # Expects: sender_email, sender_password, receiver_email, check_interval_minutes, clear_console_seconds
-            required_keys = ["sender_email", "sender_password", "receiver_email", "check_interval_minutes", "clear_console_seconds"]
+            # Expects: sender_email, sender_password, receiver_email, check_interval_minutes, clear_console_seconds, cpu_threshold, memory_threshold, email_cooldown
+            required_keys = ["sender_email", "sender_password", "receiver_email", "check_interval_minutes", "clear_console_seconds", "cpu_threshold", "memory_threshold", "email_cooldown"]
             if not all(key in args_dict for key in required_keys):
                 return {"error": "Missing required arguments for save_config", "required": required_keys}
             
@@ -71,7 +74,10 @@ def dispatch(action, args_dict=None):
                 args_dict["sender_password"],
                 args_dict["receiver_email"],
                 args_dict["check_interval_minutes"],
-                args_dict["clear_console_seconds"]
+                args_dict["clear_console_seconds"],
+                args_dict["cpu_threshold"],
+                args_dict["memory_threshold"],
+                args_dict["email_cooldown"] # 新增
             )
             return {"success": success}
         elif action == "send_alert_email":

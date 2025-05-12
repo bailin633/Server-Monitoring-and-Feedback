@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const senderEmailInput = document.getElementById('sender-email');
     const senderPasswordInput = document.getElementById('sender-password');
     const receiverEmailInput = document.getElementById('receiver-email');
+    const emailCooldownInput = document.getElementById('emailCooldownInput'); // 修正 ID 以匹配 HTML
     const saveConfigBtn = document.getElementById('save-config-btn');
 
     // Controls
@@ -28,12 +29,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // Log and Status
     const logOutputEl = document.getElementById('log-output');
     const statusMessageEl = document.getElementById('status-message');
+    const clearLogBtn = document.getElementById('clear-log-btn'); // 新增：清除日志按钮
+    const toggleAutoClearBtn = document.getElementById('toggle-auto-clear-btn'); // 新增：切换自动清除设置按钮
+    const autoClearSettingsDiv = document.getElementById('auto-clear-settings'); // 新增：自动清除设置区域
+    const autoClearIntervalInput = document.getElementById('auto-clear-interval'); // 新增：自动清除间隔输入
+    const saveAutoClearBtn = document.getElementById('save-auto-clear-btn'); // 新增：保存自动清除设置按钮
+
 
     // Theme Toggle
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const togglePasswordVisibilityBtn = document.getElementById('toggle-password-visibility'); // 新增：密码可见性切换按钮
 
     let мониторингИнтервалаId = null; // Variable to hold the interval ID for monitoring
     let isMonitoringActive = false;
+    let lastCpuAlertTime = 0; // 上次发送 CPU 警报的时间戳 (ms)
+    let lastMemoryAlertTime = 0; // 上次发送内存警报的时间戳 (ms)
+    let autoClearTimerId = null; // 自动清除日志的计时器 ID
+    let currentAutoClearInterval = 0; // 当前自动清除间隔 (秒), 0 = 禁用
 
     // --- Utility Functions ---
     function addLog(message, type = 'info') {
@@ -52,6 +64,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateStatus(message) {
         statusMessageEl.textContent = message;
+    }
+
+    function clearLogs() {
+        logOutputEl.innerHTML = ''; // 清空日志区域
+        addLog('日志已手动清除。', 'info'); // 添加一条清除记录
     }
 
     // --- Initial Data Loading ---
@@ -89,14 +106,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const config = await window.electronAPI.readConfig();
             if (config && !config.error) {
                 senderEmailInput.value = config.sender_email || '';
-                // Do not populate password for security: senderPasswordInput.value = config.sender_password || '';
+                senderPasswordInput.value = config.sender_password || ''; // 启用密码自动填充
                 receiverEmailInput.value = config.receiver_email || '';
                 if (config.check_interval_minutes) {
                     checkIntervalInput.value = config.check_interval_minutes;
                 }
-                addLog('邮件配置加载完成。');
+                // 加载监控阈值
+                if (config.cpu_threshold) {
+                    cpuThresholdInput.value = config.cpu_threshold;
+                }
+                if (config.memory_threshold) {
+                    memoryThresholdInput.value = config.memory_threshold;
+                }
+                // 加载邮件冷却时间
+                if (config.email_cooldown) {
+                    emailCooldownInput.value = config.email_cooldown;
+                }
+                addLog('邮件和监控配置加载完成。');
             } else {
-                addLog(`加载邮件配置失败: ${config?.error || '未能读取配置'}`, 'warning');
+                addLog(`加载配置失败: ${config?.error || '未能读取配置'}`, 'warning');
             }
 
         } catch (error) {
@@ -112,15 +140,18 @@ document.addEventListener('DOMContentLoaded', () => {
             sender_password: senderPasswordInput.value, // Password will be sent
             receiver_email: receiverEmailInput.value,
             check_interval_minutes: checkIntervalInput.value,
-            clear_console_seconds: "3600" // This value is from old config, keep it for python_adapter compatibility
+            clear_console_seconds: "3600", // This value is from old config, keep it for python_adapter compatibility
+            cpu_threshold: cpuThresholdInput.value,
+            memory_threshold: memoryThresholdInput.value,
+            email_cooldown: emailCooldownInput.value // 新增
         };
-        addLog('正在保存邮件配置...');
+        addLog('正在保存配置...');
         try {
             const result = await window.electronAPI.saveConfig(configData);
             if (result && result.success) {
-                addLog('邮件配置已成功保存。');
+                addLog('配置已成功保存。');
             } else {
-                addLog(`保存邮件配置失败: ${result?.error || '未知错误'}`, 'error');
+                addLog(`保存配置失败: ${result?.error || '未知错误'}`, 'error');
             }
         } catch (error) {
             addLog(`保存配置时发生错误: ${error.message}`, 'error');
@@ -189,29 +220,62 @@ document.addEventListener('DOMContentLoaded', () => {
             let alertNeeded = false;
             let emailSubject = "系统资源警报";
             let emailBodyParts = [];
+            let sendCpuAlert = false;
+            let sendMemoryAlert = false;
+            const now = Date.now();
+            const cooldownSeconds = parseInt(emailCooldownInput.value, 10);
+            const cooldownMillis = isNaN(cooldownSeconds) ? 600 * 1000 : cooldownSeconds * 1000; // 默认10分钟冷却
 
+            // 检查 CPU 阈值和冷却时间
             if (typeof cpu === 'number' && cpu > cpuThreshold) {
-                alertNeeded = true;
-                emailBodyParts.push(`CPU 使用率 (${cpu.toFixed(1)}%) 超过阈值 (${cpuThreshold}%).`);
                 addLog(`警告: CPU 使用率 ${cpu.toFixed(1)}% 超过阈值 ${cpuThreshold}%`, 'warning');
-            }
-            if (typeof mem === 'number' && mem > memoryThreshold) {
-                alertNeeded = true;
-                emailBodyParts.push(`内存使用率 (${mem.toFixed(1)}%) 超过阈值 (${memoryThreshold}%).`);
-                addLog(`警告: 内存使用率 ${mem.toFixed(1)}% 超过阈值 ${memoryThreshold}%`, 'warning');
+                if (now - lastCpuAlertTime > cooldownMillis) {
+                    sendCpuAlert = true;
+                    lastCpuAlertTime = now; // 立即更新时间戳以启动冷却
+                    addLog('CPU 警报条件触发，冷却计时器已启动。', 'info');
+                    emailBodyParts.push(`CPU 使用率 (${cpu.toFixed(1)}%) 超过阈值 (${cpuThreshold}%).`);
+                } else {
+                    // 仅在实际处于冷却状态时记录日志，避免每次检查都输出
+                    if(lastCpuAlertTime !== 0) { // 确保不是初始状态
+                       addLog(`CPU 警报冷却中，剩余 ${Math.ceil((cooldownMillis - (now - lastCpuAlertTime)) / 1000)} 秒。`, 'info');
+                    }
+                }
             }
 
-            if (alertNeeded) {
+            // 检查内存阈值和冷却时间
+            if (typeof mem === 'number' && mem > memoryThreshold) {
+                addLog(`警告: 内存使用率 ${mem.toFixed(1)}% 超过阈值 ${memoryThreshold}%`, 'warning');
+                if (now - lastMemoryAlertTime > cooldownMillis) {
+                    sendMemoryAlert = true;
+                    lastMemoryAlertTime = now; // 立即更新时间戳以启动冷却
+                    addLog('内存警报条件触发，冷却计时器已启动。', 'info');
+                    // 如果 CPU 警报也要发送，避免重复添加通用信息
+                    if (!sendCpuAlert) {
+                         emailBodyParts.push(`内存使用率 (${mem.toFixed(1)}%) 超过阈值 (${memoryThreshold}%).`);
+                    } else {
+                         // 如果 CPU 警报已添加，只补充内存信息
+                         emailBodyParts.push(`同时，内存使用率 (${mem.toFixed(1)}%) 也超过阈值 (${memoryThreshold}%).`);
+                    }
+                } else {
+                     // 仅在实际处于冷却状态时记录日志
+                     if(lastMemoryAlertTime !== 0) { // 确保不是初始状态
+                        addLog(`内存警报冷却中，剩余 ${Math.ceil((cooldownMillis - (now - lastMemoryAlertTime)) / 1000)} 秒。`, 'info');
+                     }
+                }
+            }
+
+            // 如果需要发送任一警报
+            if (sendCpuAlert || sendMemoryAlert) {
                 const senderEmail = senderEmailInput.value;
-                const senderPassword = senderPasswordInput.value; // Important: Password is read from input here
+                const senderPassword = senderPasswordInput.value;
                 const receiverEmail = receiverEmailInput.value;
 
                 if (!senderEmail || !senderPassword || !receiverEmail) {
                     addLog('邮件配置不完整，无法发送警报邮件。', 'error');
-                    return;
+                    return; // 不发送邮件，但冷却时间不会更新
                 }
-                
-                // Construct a more detailed email body if needed, similar to the Tkinter version
+
+                // 构建邮件正文
                 const osInfoText = osInfoEl.textContent;
                 const winVerText = windowsVersionEl.textContent;
                 const cpuCoresText = cpuCoresEl.textContent;
@@ -234,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p>运行进程数: ${runningProcessesEl.textContent}</p>
                     </body></html>`;
 
-                addLog('检测到资源超限，准备发送邮件...');
+                addLog('检测到资源超限且冷却时间已过，准备发送邮件...');
                 try {
                     const emailData = {
                         subject: emailSubject,
@@ -246,11 +310,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     const emailResult = await window.electronAPI.sendAlertEmail(emailData);
                     if (emailResult && emailResult.success) {
                         addLog('警报邮件已成功发送。');
+                        // 时间戳已在决定发送时更新，此处无需重复更新
+                        // if (sendCpuAlert) {
+                        //     // lastCpuAlertTime = now; // 已提前更新
+                        //     // addLog('CPU 警报冷却计时器已重置。', 'info');
+                        // }
+                        // if (sendMemoryAlert) {
+                        //     // lastMemoryAlertTime = now; // 已提前更新
+                        //     // addLog('内存警报冷却计时器已重置。', 'info');
+                        // }
                     } else {
                         addLog(`发送警报邮件失败: ${emailResult?.error || '未知错误'}`, 'error');
+                        // 发送失败，不更新时间戳，下次还会尝试
                     }
                 } catch (emailError) {
                     addLog(`发送邮件时发生错误: ${emailError.message}`, 'error');
+                     // 发送失败，不更新时间戳
                 }
             }
 
@@ -287,13 +362,80 @@ document.addEventListener('DOMContentLoaded', () => {
         addLog(`主题已切换为: ${currentTheme === 'light' ? '浅色' : '深色'}`);
     });
 
+    // --- Password Visibility Toggle ---
+    togglePasswordVisibilityBtn.addEventListener('click', () => {
+        const isPassword = senderPasswordInput.type === 'password';
+        senderPasswordInput.type = isPassword ? 'text' : 'password';
+        togglePasswordVisibilityBtn.textContent = isPassword ? '🙈' : '👁️'; // Change icon
+        togglePasswordVisibilityBtn.title = isPassword ? '隐藏密码' : '显示密码';
+    });
+
+
     function loadThemePreference() {
         const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark
         applyTheme(savedTheme);
     }
 
+    // --- Log Clearing Logic ---
+    clearLogBtn.addEventListener('click', clearLogs);
+
+    toggleAutoClearBtn.addEventListener('click', () => {
+        const isHidden = autoClearSettingsDiv.classList.toggle('hidden');
+        toggleAutoClearBtn.textContent = isHidden ? '▼' : '▲'; // Toggle arrow icon
+    });
+
+    function stopAutoClearTimer() {
+        if (autoClearTimerId) {
+            clearInterval(autoClearTimerId);
+            autoClearTimerId = null;
+            addLog('自动清除日志已停止。', 'info');
+        }
+    }
+
+    function startAutoClearTimer(intervalSeconds) {
+        stopAutoClearTimer(); // Stop any existing timer first
+        if (intervalSeconds > 0) {
+            currentAutoClearInterval = intervalSeconds;
+            const intervalMillis = intervalSeconds * 1000;
+            autoClearTimerId = setInterval(() => {
+                addLog(`根据设置 (${intervalSeconds}秒)，自动清除日志...`, 'info');
+                logOutputEl.innerHTML = ''; // Clear logs
+            }, intervalMillis);
+            addLog(`自动清除日志已启动，间隔 ${intervalSeconds} 秒。`, 'info');
+        } else {
+             currentAutoClearInterval = 0; // Ensure interval is 0 if disabled
+        }
+    }
+
+    saveAutoClearBtn.addEventListener('click', () => {
+        const intervalValue = parseInt(autoClearIntervalInput.value, 10);
+        if (isNaN(intervalValue) || intervalValue < 0) {
+            addLog('无效的自动清除间隔，请输入一个非负整数。', 'error');
+            return;
+        }
+        localStorage.setItem('autoClearLogInterval', intervalValue); // Save to localStorage
+        startAutoClearTimer(intervalValue);
+        addLog(`自动清除间隔已保存为 ${intervalValue} 秒 ${intervalValue === 0 ? '(已禁用)' : ''}。`, 'info');
+        autoClearSettingsDiv.classList.add('hidden'); // Hide settings after saving
+        toggleAutoClearBtn.textContent = '▼';
+    });
+
+    function loadAutoClearSetting() {
+        const savedInterval = localStorage.getItem('autoClearLogInterval');
+        const intervalSeconds = parseInt(savedInterval, 10);
+        if (!isNaN(intervalSeconds) && intervalSeconds >= 0) {
+            autoClearIntervalInput.value = intervalSeconds;
+            startAutoClearTimer(intervalSeconds); // Start timer based on saved value
+        } else {
+            autoClearIntervalInput.value = 0; // Default to 0 if not saved or invalid
+            startAutoClearTimer(0); // Ensure timer is stopped if default
+        }
+    }
+
+
     // --- Initialize ---
     loadThemePreference(); // Load theme first
     loadInitialData();
+    loadAutoClearSetting(); // Load auto-clear setting
     addLog('渲染进程 (renderer.js) 已加载并初始化。');
 });

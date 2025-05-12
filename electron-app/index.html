@@ -55,13 +55,18 @@
                     <label for="sender-email">发件人邮箱:</label>
                     <input type="email" id="sender-email" placeholder="your_email@example.com">
                 </div>
-                <div class="form-group">
-                    <label for="sender-password">发件人密码/授权码:</label>
+                <div class="form-group password-group"> <!-- Add a class for styling -->
+                    <label for="sender-password">授权码:</label>
                     <input type="password" id="sender-password">
+                    <button type="button" id="toggle-password-visibility" class="visibility-toggle" title="显示/隐藏密码">👁️</button> <!-- Add toggle button -->
                 </div>
                 <div class="form-group">
                     <label for="receiver-email">收件人邮箱:</label>
                     <input type="email" id="receiver-email" placeholder="recipient_email@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="emailCooldownInput">邮件冷却时间 (秒):</label>
+                    <input type="number" id="emailCooldownInput" value="600" min="0">
                 </div>
                 <button id="save-config-btn">保存邮件配置</button>
             </section>
@@ -76,7 +81,19 @@
 
         <!-- 状态与日志区 -->
         <section id="log-area" class="card">
-            <h2>状态与日志</h2>
+            <div class="log-header"> <!-- New container for heading and controls -->
+                <h2>状态与日志</h2>
+                <div class="log-controls">
+                    <button id="clear-log-btn" title="清除所有日志">清除日志</button>
+                    <button id="toggle-auto-clear-btn" class="toggle-arrow" title="自动清除设置">▼</button>
+                    <div id="auto-clear-settings" class="auto-clear-details hidden">
+                         <label for="auto-clear-interval">自动清除间隔 (秒):</label>
+                         <input type="number" id="auto-clear-interval" value="0" min="0">
+                         <button id="save-auto-clear-btn">保存设置</button>
+                         <p class="note">(设置为 0 禁用)</p>
+                    </div>
+                </div>
+            </div>
             <div id="log-output" class="log-box">
                 <p>应用程序准备就绪...</p>
             </div>
