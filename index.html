@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>使用说明</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1c92d2, #f2fcfe);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            overflow-y: auto;
+            animation: fadeIn 0.5s ease;
+            transition: background 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        header {
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 12px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+        header:hover {
+            transform: scale(1.05);
+            background: rgba(0, 0, 0, 0.9);
+        }
+        h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            animation: slideIn 0.5s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .alert {
+            background-color: #ffeb3b;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ffc107;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            animation: pulse 2s infinite;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        h2 {
+            color: #007BFF;
+            border-bottom: 2px solid #007BFF;
+            padding-bottom: 5px;
+            margin-top: 20px;
+            font-size: 2.2em;
+            transition: color 0.3s ease;
+        }
+        h2:hover {
+            color: #0056b3;
+        }
+        ol, ul {
+            margin-left: 20px;
+            padding-left: 10px;
+            list-style: none;
+        }
+        ol li::before {
+            content: "🔹";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        code {
+            background-color: #eaeaea;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            display: inline-block;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        code:hover {
+            background-color: #d1d1d1;
+            transform: scale(1.1);
+        }
+        footer {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #777;
+            text-align: center;
+            position: relative;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .icon {
+            margin-right: 8px;
+            color: #007BFF;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            z-index: 0;
+            transition: opacity 0.3s;
+            opacity: 0;
+			z-index: 0; /* 设置 z-index 比 code 元素低 */
+        }
+        .card:hover::before {
+            opacity: 1;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 2.2em;
+            }
+            h2 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+	
+	<script>
+	
+	</script>
+	
+	
+</head>
+<body>
+
+    <header>
+        <h1>使用说明</h1>
+    </header>
+
+    <div class="container">
+
+        <div class="alert">
+            <i class="fas fa-exclamation-triangle icon"></i>
+            <strong>注意：</strong> 请确保在使用本程序之前已安装必要的依赖项。
+        </div>
+
+        <h2>安装步骤</h2>
+        <div class="card">
+            <ol>
+                <li><i class="fas fa-check-circle icon"></i>确保您已安装 Python 3.x。</li>
+                <li><i class="fas fa-file-download icon"></i>下载项目文件。</li>
+                <li><i class="fas fa-terminal icon"></i>在项目根目录下打开命令行。</li>
+                <li><i class="fas fa-cogs icon"></i>运行以下命令安装依赖项：
+                <code onclick="event.stopPropagation()" style="cursor: pointer; position: relative; z-index: 1;">双击打开install_libs.bat</code>
+					
+                </li>
+            </ol>
+        </div>
+
+        <h2>运行程序</h2>
+        <p><i class="fas fa-play-circle icon"></i>在命令行中输入以下命令启动程序：</p>
+        <code>python main.py</code>
+        <div class="card">
+            <ul>
+                <li>也可以双击执行EXE可执行程序</li>
+            </ul>
+        </div>
+
+        <h2>功能介绍</h2>
+        <div class="card">
+            <ul>
+                <li><i class="fas fa-desktop icon"></i>系统监控：实时监控 CPU 和内存使用率。</li>
+                <li><i class="fas fa-envelope icon"></i>邮件通知：在资源使用超出设定阈值时发送警报邮件。</li>
+            </ul>
+        </div>
+
+        <h2>常见问题</h2>
+        <div class="card">
+            <p><i class="fas fa-question-circle icon"></i>如果在使用过程中遇到问题，请检查以下内容：</p>
+            <ul>
+                <li><i class="fas fa-check-square icon"></i>确保依赖项已正确安装。</li>
+                <li><i class="fas fa-check-square icon"></i>检查 Python 版本是否符合要求。</li>
+                <li><i class="fas fa-check-square icon"></i>确认配置文件路径是否正确。</li>
+            </ul>
+        </div>
+
+        <h2>联系支持</h2>
+        <p>如需进一步的支持，请发送邮件至 <a href="mailto:2412433138@qq.com">2412433138@qq.com</a></p>
+
+    </div>
+	
+
+    <footer>
+        <p>&copy; 2024 leaflin.icu 保留所有权利.</p>
+        <p><a href="http://leaflin.icu" target="_blank" style="color: #007BFF; text-decoration: none;">访问官网</a></p>
+    </footer>
+
+</body>
+</html>
