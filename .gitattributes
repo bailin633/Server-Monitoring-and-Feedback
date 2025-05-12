@@ -1,0 +1,7 @@
+*.py linguist-language=Python
+*.js linguist-language=JavaScript
+*.html linguist-language=java
+*.html linguist-language=Python
+*.log linguist-detectable=false
+*.md linguist-detectable=false
+electron-app/node_modules/
