@@ -59,12 +59,10 @@ If usage exceeds a predefined threshold, an automatic email alert will be sent t
 
 ## 📄 License | 许可证
 
-This project is currently for personal/internal use. License information will be added in the future.  
-本项目目前为个人/内部使用，许可信息将在未来添加。
+
 
 ---
 
 ## 👨‍💻 Author | 作者
 
-Developed by 林  
-喜欢夜晚、星空与海洋的码农  
+Developed by bailin
